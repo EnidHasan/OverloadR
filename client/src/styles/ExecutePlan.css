@@ -1,0 +1,474 @@
+.execute-plan {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(220, 38, 38, 0.06) 0%, transparent 40%),
+    var(--bg-primary);
+  animation: fadeInContainer 0.5s ease-out;
+  position: relative;
+}
+
+@keyframes fadeInContainer {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--card-border);
+  animation: slideInFromTop 0.6s ease-out;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.workout-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color: var(--text-primary);
+}
+
+.exercise-progress {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.close-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.close-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.close-btn:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
+.close-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: rotate(90deg);
+}
+
+.workout-main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+}
+
+.current-exercise {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 1px solid var(--card-border);
+}
+
+.exercise-title {
+  margin-bottom: 1.5rem;
+}
+
+.exercise-title h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+}
+
+.muscle-group {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.previous-performance {
+  background: var(--bg-tertiary);
+  border-left: 4px solid var(--primary);
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.previous-performance h3 {
+  margin: 0 0 1rem 0;
+  color: var(--primary);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.best-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat {
+  background: var(--card-bg);
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid var(--card-border);
+}
+
+.stat .label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat .value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.sets-input {
+  margin-top: 2rem;
+}
+
+.sets-input h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.sets-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.sets-table thead {
+  background: var(--bg-tertiary);
+}
+
+.sets-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--card-border);
+}
+
+.sets-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.sets-table tr.completed {
+  background: var(--bg-tertiary);
+}
+
+.set-num {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.complete-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.workout-progress {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 1px solid var(--card-border);
+  position: sticky;
+  top: 1.5rem;
+}
+
+.workout-progress h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+}
+
+.exercises-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.exercises-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.exercises-list li:hover {
+  background: var(--bg-tertiary);
+}
+
+.exercises-list li.active {
+  background: var(--bg-tertiary);
+  border-left: 4px solid var(--primary);
+  padding-left: calc(0.75rem - 4px);
+}
+
+.exercise-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.exercise-check {
+  color: var(--primary);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.progress-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.next-btn,
+.finish-btn {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.next-btn {
+  background: var(--bg-tertiary);
+  color: var(--primary);
+}
+
+.next-btn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+}
+
+.next-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.finish-btn {
+  background: var(--primary);
+  color: white;
+}
+
+.finish-btn:hover {
+  background: var(--primary-hover);
+}
+
+.workout-summary {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 1px solid var(--card-border);
+}
+
+.workout-summary h1 {
+  margin: 0 0 1rem 0;
+  color: var(--primary);
+  font-size: 2.5rem;
+}
+
+.summary-plan-name {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.summary-time {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.summary-exercises {
+  text-align: left;
+  margin: 2rem 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.summary-exercises h2 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.summary-exercise {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.summary-exercise:last-child {
+  border-bottom: none;
+}
+
+.summary-exercise h3 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-primary);
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.summary-table thead {
+  background: var(--bg-tertiary);
+}
+
+.summary-table th {
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.summary-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.summary-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.back-btn,
+.new-plan-btn {
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.back-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.back-btn:hover {
+  background: var(--bg-secondary);
+}
+
+.new-plan-btn {
+  background: var(--primary);
+  color: white;
+}
+
+.new-plan-btn:hover {
+  background: var(--primary-hover);
+}
+
+@media (max-width: 900px) {
+  .workout-main {
+    grid-template-columns: 1fr;
+  }
+
+  .workout-progress {
+    position: static;
+  }
+
+  .best-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .execute-plan {
+    padding: 1rem;
+  }
+
+  .current-exercise {
+    padding: 1rem;
+  }
+
+  .sets-table {
+    font-size: 0.85rem;
+  }
+
+  .sets-table th,
+  .sets-table td {
+    padding: 0.5rem;
+  }
+
+  .workout-header h1 {
+    font-size: 1.5rem;
+  }
+}
