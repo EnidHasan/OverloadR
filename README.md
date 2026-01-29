@@ -64,8 +64,8 @@ A modern, full-stack workout tracking application built with React, Node.js, Exp
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/yourusername/workout-tracker-app.git
-cd workout-tracker-app
+git clone https://github.com/EnidHasan/OverloadR.git
+cd OverloadR
 ```
 
 ### Setup MongoDB
@@ -265,8 +265,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👨‍💻 Author
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
+**Enid Hasan**
+- GitHub: [@EnidHasan](https://github.com/EnidHasan)
 
 ## 🙏 Acknowledgments
 
@@ -276,8 +276,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Support
 
-For support, email your@email.com or open an issue in the GitHub repository.
+For support, open an issue in the GitHub repository at https://github.com/EnidHasan/OverloadR/issues
 
 ---
 
-Made with ❤️ and 💪 by [Your Name]
+Made with ❤️ and 💪 by Enid Hasan
