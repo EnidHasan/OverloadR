@@ -25,9 +25,9 @@ Your MongoDB credentials were exposed in a public GitHub commit. Follow these st
 
 1. Open `server/.env` file in your local workspace
 2. Update the `MONGODB_URI` with the NEW credentials:
-   ```
-   MONGODB_URI=mongodb+srv://NEW_USERNAME:NEW_PASSWORD@cluster0.icsr8vn.mongodb.net/workout-tracker?retryWrites=true&w=majority&appName=Cluster0
-   ```
+  ```
+  MONGODB_URI=mongodb+srv://NEW_USERNAME:NEW_PASSWORD@YOUR_CLUSTER.mongodb.net/workout-tracker?retryWrites=true&w=majority&appName=Cluster0
+  ```
 3. **NEVER commit the `.env` file to Git** - it's already in `.gitignore`
 
 ### 4. Check Your Git History
