@@ -38,6 +38,13 @@ export const AuthProvider = ({ children }) => {
     const userIsAdmin = localStorage.getItem('userIsAdmin') === 'true'
     const userAge = localStorage.getItem('userAge')
     const userWeight = localStorage.getItem('userWeight')
+    const userPhone = localStorage.getItem('userPhone')
+    const userAddressLine1 = localStorage.getItem('userAddressLine1')
+    const userAddressLine2 = localStorage.getItem('userAddressLine2')
+    const userCity = localStorage.getItem('userCity')
+    const userState = localStorage.getItem('userState')
+    const userPostalCode = localStorage.getItem('userPostalCode')
+    const userCountry = localStorage.getItem('userCountry')
     const userCreatedAt = localStorage.getItem('userCreatedAt')
 
     if (!token || !loginTime) {
@@ -66,6 +73,13 @@ export const AuthProvider = ({ children }) => {
       isAdmin: userIsAdmin,
       age: userAge ? parseInt(userAge) : undefined,
       weight: userWeight ? parseFloat(userWeight) : undefined,
+      phone: userPhone || undefined,
+      addressLine1: userAddressLine1 || undefined,
+      addressLine2: userAddressLine2 || undefined,
+      city: userCity || undefined,
+      state: userState || undefined,
+      postalCode: userPostalCode || undefined,
+      country: userCountry || undefined,
       createdAt: userCreatedAt,
       token: token
     })
@@ -85,6 +99,13 @@ export const AuthProvider = ({ children }) => {
     // Store additional user data if available
     if (userData.age) localStorage.setItem('userAge', userData.age.toString())
     if (userData.weight) localStorage.setItem('userWeight', userData.weight.toString())
+    if (userData.phone) localStorage.setItem('userPhone', userData.phone)
+    if (userData.addressLine1) localStorage.setItem('userAddressLine1', userData.addressLine1)
+    if (userData.addressLine2) localStorage.setItem('userAddressLine2', userData.addressLine2)
+    if (userData.city) localStorage.setItem('userCity', userData.city)
+    if (userData.state) localStorage.setItem('userState', userData.state)
+    if (userData.postalCode) localStorage.setItem('userPostalCode', userData.postalCode)
+    if (userData.country) localStorage.setItem('userCountry', userData.country)
     if (userData.createdAt) localStorage.setItem('userCreatedAt', userData.createdAt)
 
     setUser({
@@ -94,6 +115,13 @@ export const AuthProvider = ({ children }) => {
       isAdmin: userData.isAdmin || false,
       age: userData.age,
       weight: userData.weight,
+      phone: userData.phone,
+      addressLine1: userData.addressLine1,
+      addressLine2: userData.addressLine2,
+      city: userData.city,
+      state: userData.state,
+      postalCode: userData.postalCode,
+      country: userData.country,
       createdAt: userData.createdAt,
       token: userData.token
     })
@@ -108,6 +136,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('loginTime')
     localStorage.removeItem('userAge')
     localStorage.removeItem('userWeight')
+    localStorage.removeItem('userPhone')
+    localStorage.removeItem('userAddressLine1')
+    localStorage.removeItem('userAddressLine2')
+    localStorage.removeItem('userCity')
+    localStorage.removeItem('userState')
+    localStorage.removeItem('userPostalCode')
+    localStorage.removeItem('userCountry')
     localStorage.removeItem('userCreatedAt')
     setUser(null)
   }
@@ -126,6 +161,27 @@ export const AuthProvider = ({ children }) => {
     if (updatedData.weight !== undefined) {
       localStorage.setItem('userWeight', updatedData.weight.toString())
     }
+    if (updatedData.phone !== undefined) {
+      localStorage.setItem('userPhone', updatedData.phone || '')
+    }
+    if (updatedData.addressLine1 !== undefined) {
+      localStorage.setItem('userAddressLine1', updatedData.addressLine1 || '')
+    }
+    if (updatedData.addressLine2 !== undefined) {
+      localStorage.setItem('userAddressLine2', updatedData.addressLine2 || '')
+    }
+    if (updatedData.city !== undefined) {
+      localStorage.setItem('userCity', updatedData.city || '')
+    }
+    if (updatedData.state !== undefined) {
+      localStorage.setItem('userState', updatedData.state || '')
+    }
+    if (updatedData.postalCode !== undefined) {
+      localStorage.setItem('userPostalCode', updatedData.postalCode || '')
+    }
+    if (updatedData.country !== undefined) {
+      localStorage.setItem('userCountry', updatedData.country || '')
+    }
 
     // Update user state - preserve existing fields like id, token, isAdmin
     setUser(prev => ({
@@ -134,6 +190,13 @@ export const AuthProvider = ({ children }) => {
       email: updatedData.email || prev?.email,
       age: updatedData.age !== undefined ? updatedData.age : prev?.age,
       weight: updatedData.weight !== undefined ? updatedData.weight : prev?.weight,
+      phone: updatedData.phone !== undefined ? updatedData.phone : prev?.phone,
+      addressLine1: updatedData.addressLine1 !== undefined ? updatedData.addressLine1 : prev?.addressLine1,
+      addressLine2: updatedData.addressLine2 !== undefined ? updatedData.addressLine2 : prev?.addressLine2,
+      city: updatedData.city !== undefined ? updatedData.city : prev?.city,
+      state: updatedData.state !== undefined ? updatedData.state : prev?.state,
+      postalCode: updatedData.postalCode !== undefined ? updatedData.postalCode : prev?.postalCode,
+      country: updatedData.country !== undefined ? updatedData.country : prev?.country,
     }))
   }
 

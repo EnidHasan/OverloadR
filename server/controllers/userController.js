@@ -11,7 +11,7 @@ const generateToken = (userId) => {
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, age, weight } = req.body;
+    const { name, email, password, age, weight, phone, addressLine1, addressLine2, city, state, postalCode, country } = req.body;
 
     console.log('📝 Registration attempt:', { name, email, password: '***' });
 
@@ -59,6 +59,13 @@ exports.registerUser = async (req, res) => {
       password,
       age,
       weight,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      postalCode,
+      country,
       isAdmin: email.toLowerCase() === 'enid.hasan.21@gmail.com'
     });
 
@@ -75,6 +82,13 @@ exports.registerUser = async (req, res) => {
       email: savedUser.email,
       age: savedUser.age,
       weight: savedUser.weight,
+      phone: savedUser.phone,
+      addressLine1: savedUser.addressLine1,
+      addressLine2: savedUser.addressLine2,
+      city: savedUser.city,
+      state: savedUser.state,
+      postalCode: savedUser.postalCode,
+      country: savedUser.country,
       isAdmin: savedUser.isAdmin,
       createdAt: savedUser.createdAt,
       token
@@ -111,6 +125,13 @@ exports.loginUser = async (req, res) => {
       email: user.email,
       age: user.age,
       weight: user.weight,
+      phone: user.phone,
+      addressLine1: user.addressLine1,
+      addressLine2: user.addressLine2,
+      city: user.city,
+      state: user.state,
+      postalCode: user.postalCode,
+      country: user.country,
       isAdmin: user.isAdmin,
       createdAt: user.createdAt,
       token
@@ -124,11 +145,22 @@ exports.loginUser = async (req, res) => {
 // Get user by ID
 exports.getUser = async (req, res) => {
   try {
+    console.log('📍 GET /users/:id - getUser called');
+    console.log('   - User ID from token:', req.user._id);
+    console.log('   - Param ID:', req.params.id);
+    
     // Use the authenticated user's ID from the token
     const user = await User.findById(req.user._id).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    if (!user) {
+      console.log('❌ User not found for ID:', req.user._id);
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    console.log('✅ Returning user data for:', user.email);
     res.json(user);
   } catch (err) {
+    console.error('❌ Error in getUser:', err.message);
     res.status(500).json({ message: err.message });
   }
 };
@@ -136,13 +168,27 @@ exports.getUser = async (req, res) => {
 // Update user profile
 exports.updateUser = async (req, res) => {
   try {
-    const { name, email, age, weight, currentPassword, newPassword } = req.body;
+    const {
+      name,
+      email,
+      age,
+      weight,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      postalCode,
+      country,
+      currentPassword,
+      newPassword
+    } = req.body;
     
     // Use the authenticated user's ID from the token
     const userId = req.user._id;
     
     console.log('📝 Update user request for ID:', userId);
-    console.log('📝 Update data:', { name, email, age, weight, hasNewPassword: !!newPassword });
+    console.log('📝 Update data:', { name, email, age, weight, phone, addressLine1, addressLine2, city, state, postalCode, country, hasNewPassword: !!newPassword });
     
     const user = await User.findById(userId);
     if (!user) {
@@ -173,6 +219,13 @@ exports.updateUser = async (req, res) => {
     if (email) user.email = email;
     if (age !== undefined) user.age = age;
     if (weight !== undefined) user.weight = weight;
+    if (phone !== undefined) user.phone = phone;
+    if (addressLine1 !== undefined) user.addressLine1 = addressLine1;
+    if (addressLine2 !== undefined) user.addressLine2 = addressLine2;
+    if (city !== undefined) user.city = city;
+    if (state !== undefined) user.state = state;
+    if (postalCode !== undefined) user.postalCode = postalCode;
+    if (country !== undefined) user.country = country;
 
     const updatedUser = await user.save();
     
@@ -184,6 +237,13 @@ exports.updateUser = async (req, res) => {
       email: updatedUser.email,
       age: updatedUser.age,
       weight: updatedUser.weight,
+      phone: updatedUser.phone,
+      addressLine1: updatedUser.addressLine1,
+      addressLine2: updatedUser.addressLine2,
+      city: updatedUser.city,
+      state: updatedUser.state,
+      postalCode: updatedUser.postalCode,
+      country: updatedUser.country,
       isAdmin: updatedUser.isAdmin,
       createdAt: updatedUser.createdAt
     });
