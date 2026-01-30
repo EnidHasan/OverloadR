@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import { useToast } from '../components/Toast'
+import { useAuth } from '../context/AuthContext'
 import '../styles/NewAuth.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -9,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 function Login() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -34,11 +36,8 @@ function Login() {
       const response = await axios.post(`${API_URL}/users/login`, formData)
       
       if (response.data.token) {
-        // Store user data in localStorage
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('userId', response.data._id)
-        localStorage.setItem('userName', response.data.name)
-        localStorage.setItem('userEmail', response.data.email)
+        // Use auth context to store user data with 14-day session
+        login(response.data)
         
         showToast('Login successful!', 'success')
         setTimeout(() => navigate('/workouts'), 500)

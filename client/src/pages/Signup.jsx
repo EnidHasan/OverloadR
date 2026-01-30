@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import { useToast } from '../components/Toast'
+import { useAuth } from '../context/AuthContext'
 import '../styles/NewAuth.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -9,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 function Signup() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,6 +29,41 @@ function Signup() {
     setError('')
   }
 
+  const validateEmail = (email) => {
+    const validDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com']
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address'
+    }
+    
+    const domain = email.split('@')[1]?.toLowerCase()
+    if (!validDomains.includes(domain)) {
+      return 'Please use a valid email provider (Gmail, Yahoo, Outlook, Hotmail, or iCloud)'
+    }
+    
+    return null
+  }
+
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long'
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter'
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter'
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number'
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return 'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+    }
+    return null
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -39,15 +76,24 @@ function Signup() {
       return
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      const msg = 'Passwords do not match'
-      setError(msg)
-      showToast(msg, 'warning')
+    // Email validation
+    const emailError = validateEmail(formData.email)
+    if (emailError) {
+      setError(emailError)
+      showToast(emailError, 'warning')
       return
     }
 
-    if (formData.password.length < 6) {
-      const msg = 'Password must be at least 6 characters'
+    // Password validation
+    const passwordError = validatePassword(formData.password)
+    if (passwordError) {
+      setError(passwordError)
+      showToast(passwordError, 'warning')
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      const msg = 'Passwords do not match'
       setError(msg)
       showToast(msg, 'warning')
       return
@@ -63,11 +109,8 @@ function Signup() {
       })
 
       if (response.data.token) {
-        // Store user data in localStorage
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('userId', response.data._id)
-        localStorage.setItem('userName', response.data.name)
-        localStorage.setItem('userEmail', response.data.email)
+        // Use auth context to store user data with 14-day session
+        login(response.data)
         
         showToast('Account created successfully!', 'success')
         setTimeout(() => navigate('/workouts'), 500)
@@ -133,6 +176,9 @@ function Signup() {
               placeholder="Enter your password"
               required
             />
+            <small style={{color: '#888', fontSize: '0.85em', marginTop: '4px', display: 'block'}}>
+              Min 8 characters with uppercase, lowercase, number & special character
+            </small>
           </div>
 
           <div className="form-group">

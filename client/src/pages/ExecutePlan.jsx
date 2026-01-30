@@ -1,55 +1,154 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { useAuth } from '../context/AuthContext'
+import { useToast } from '../components/Toast'
 import '../styles/ExecutePlan.css'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 function ExecutePlan() {
   const { planId } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { showToast } = useToast()
   const [plan, setPlan] = useState(null)
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0)
   const [setInputs, setSetInputs] = useState({})
   const [completedSets, setCompletedSets] = useState({})
   const [performanceHistory, setPerformanceHistory] = useState({})
+  const [lastSession, setLastSession] = useState(null)
   const [workoutStartTime] = useState(new Date())
   const [showSummary, setShowSummary] = useState(false)
   const [workoutSession, setWorkoutSession] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadPlan()
-    loadPerformanceHistory()
-  }, [planId])
+    if (user && planId) {
+      loadPlan()
+      loadPerformanceHistory()
+      loadLastSession()
+    }
+  }, [planId, user])
 
-  const loadPlan = () => {
-    const plans = JSON.parse(localStorage.getItem('workoutPlans') || '[]')
-    const foundPlan = plans.find(p => p.id === parseInt(planId))
-    if (foundPlan) {
-      setPlan(foundPlan)
-      initializeInputs(foundPlan)
-      setWorkoutSession({
-        planId: foundPlan.id,
-        planName: foundPlan.name,
-        exercises: foundPlan.exercises.map(ex => ({
-          id: ex.id,
-          name: ex.name,
-          sets: []
-        })),
-        startTime: new Date().toISOString(),
-        endTime: null
+  // Re-initialize inputs when lastSession loads
+  useEffect(() => {
+    if (plan && lastSession) {
+      initializeInputs(plan)
+    }
+  }, [lastSession])
+
+  const loadPlan = async () => {
+    try {
+      setLoading(true)
+      // First try to load from localStorage (for immediate access)
+      const cachedPlan = localStorage.getItem('currentPlan')
+      if (cachedPlan) {
+        const parsedPlan = JSON.parse(cachedPlan)
+        if (parsedPlan._id === planId) {
+          setPlan(parsedPlan)
+          initializeInputs(parsedPlan)
+          setWorkoutSession({
+            planId: parsedPlan._id,
+            planName: parsedPlan.name,
+            exercises: parsedPlan.exercises.map(ex => ({
+              name: ex.name,
+              sets: []
+            })),
+            startTime: new Date().toISOString(),
+            endTime: null
+          })
+          setLoading(false)
+          return
+        }
+      }
+
+      // Fetch from MongoDB
+      const response = await axios.get(`${API_URL}/plans/${planId}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
       })
+      
+      if (response.data) {
+        setPlan(response.data)
+        initializeInputs(response.data)
+        setWorkoutSession({
+          planId: response.data._id,
+          planName: response.data.name,
+          exercises: response.data.exercises.map(ex => ({
+            name: ex.name,
+            sets: []
+          })),
+          startTime: new Date().toISOString(),
+          endTime: null
+        })
+        localStorage.setItem('currentPlan', JSON.stringify(response.data))
+      }
+    } catch (error) {
+      console.error('Error loading plan:', error)
+      showToast('Failed to load workout plan', 'error')
+      navigate('/saved-plans')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const loadPerformanceHistory = () => {
-    const history = JSON.parse(localStorage.getItem('performanceHistory') || '{}')
-    setPerformanceHistory(history)
+  const loadPerformanceHistory = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await axios.get(`${API_URL}/performance/user/${user.id}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      
+      // Convert array to object keyed by exercise name
+      const historyMap = {}
+      response.data.forEach(perf => {
+        historyMap[perf.exerciseName] = perf
+      })
+      
+      setPerformanceHistory(historyMap)
+    } catch (error) {
+      console.error('Error loading performance history:', error)
+    }
+  }
+
+  const loadLastSession = async () => {
+    if (!user || !planId) return;
+    
+    try {
+      const response = await axios.get(`${API_URL}/performance/last-session/${user.id}/${planId}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      
+      if (response.data) {
+        setLastSession(response.data)
+      }
+    } catch (error) {
+      console.error('Error loading last session:', error)
+    }
   }
 
   const initializeInputs = (plan) => {
     const inputs = {}
     plan.exercises.forEach((exercise, exIdx) => {
       inputs[exIdx] = {}
+      
+      // Try to find this exercise in the last session
+      let lastExercise = null
+      if (lastSession && lastSession.exercises) {
+        lastExercise = lastSession.exercises.find(ex => ex.name === exercise.name)
+      }
+      
       exercise.sets.forEach((set, setIdx) => {
-        inputs[exIdx][setIdx] = { reps: set.reps, weight: set.weight }
+        // Use last session data if available, otherwise use plan defaults
+        if (lastExercise && lastExercise.sets && lastExercise.sets[setIdx]) {
+          inputs[exIdx][setIdx] = { 
+            reps: lastExercise.sets[setIdx].reps || set.reps, 
+            weight: lastExercise.sets[setIdx].weight || set.weight 
+          }
+        } else {
+          inputs[exIdx][setIdx] = { reps: set.reps, weight: set.weight }
+        }
       })
     })
     setSetInputs(inputs)
@@ -76,8 +175,14 @@ function ExecutePlan() {
     }))
   }
 
-  const getPreviousBest = (exerciseId) => {
-    return performanceHistory[exerciseId] || null
+  const getPreviousBest = (exerciseName) => {
+    return performanceHistory[exerciseName] || null
+  }
+
+  const getTopPerformances = (exerciseName) => {
+    const perf = performanceHistory[exerciseName]
+    if (!perf || !perf.topPerformances) return []
+    return perf.topPerformances
   }
 
   const moveToNextExercise = () => {
@@ -86,71 +191,70 @@ function ExecutePlan() {
     }
   }
 
-  const savePreviousBest = () => {
-    const currentExercise = plan.exercises[currentExerciseIdx]
-    const exerciseKey = currentExercise.id
-
-    const currentBest = getPreviousBest(exerciseKey) || {
-      exerciseName: currentExercise.name,
-      bestSet: { reps: 0, weight: 0 }
-    }
-
-    const inputs = setInputs[currentExerciseIdx] || {}
-    let maxWeight = currentBest.bestSet.weight
-    let maxReps = currentBest.bestSet.reps
-
-    Object.values(inputs).forEach(set => {
-      if (set.weight > maxWeight || (set.weight === maxWeight && set.reps > maxReps)) {
-        maxWeight = set.weight
-        maxReps = set.reps
-      }
-    })
-
-    const updated = {
-      ...performanceHistory,
-      [exerciseKey]: {
-        exerciseName: currentExercise.name,
-        bestSet: { reps: maxReps, weight: maxWeight },
-        lastPerformed: new Date().toISOString(),
-        allSets: Object.values(inputs)
-      }
-    }
-    localStorage.setItem('performanceHistory', JSON.stringify(updated))
-    setPerformanceHistory(updated)
-  }
-
-  const finishWorkout = () => {
-    // Save best performance for current exercise
-    savePreviousBest()
-
-    // Save the completed workout session
-    const completedSession = {
-      ...workoutSession,
-      endTime: new Date().toISOString(),
-      exercises: plan.exercises.map((exercise, exIdx) => ({
-        id: exercise.id,
+  const finishWorkout = async () => {
+    try {
+      // Prepare workout data
+      const exercisesData = plan.exercises.map((exercise, exIdx) => ({
         name: exercise.name,
         group: exercise.group,
+        muscleDetail: exercise.muscleDetail,
         sets: Object.entries(setInputs[exIdx] || {}).map(([_, set]) => ({
           reps: set.reps,
           weight: set.weight
-        }))
-      }))
+        })).filter(set => set.weight > 0 || set.reps > 0) // Only include completed sets
+      })).filter(ex => ex.sets.length > 0) // Only include exercises with sets
+
+      if (exercisesData.length === 0) {
+        showToast('No exercises completed', 'warning')
+        return
+      }
+
+      // Save workout to MongoDB
+      await axios.post(`${API_URL}/performance/workout`, {
+        userId: user.id,
+        planId: plan._id,
+        planName: plan.name,
+        exercises: exercisesData
+      }, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+
+      showToast('Workout saved successfully!', 'success')
+      setShowSummary(true)
+      
+      // Reload performance history to show updated PRs
+      await loadPerformanceHistory()
+    } catch (error) {
+      console.error('Error saving workout:', error)
+      showToast('Failed to save workout', 'error')
     }
+  }
 
-    const sessions = JSON.parse(localStorage.getItem('workoutSessions') || '[]')
-    sessions.push(completedSession)
-    localStorage.setItem('workoutSessions', JSON.stringify(sessions))
-
-    setShowSummary(true)
+  if (loading) {
+    return (
+      <div className="execute-plan">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <p>Loading workout plan...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!plan) {
-    return <div className="container"><p>Loading...</p></div>
+    return (
+      <div className="execute-plan">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
+          <p>Workout plan not found</p>
+          <button onClick={() => navigate('/saved-plans')} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            Back to Plans
+          </button>
+        </div>
+      </div>
+    )
   }
 
   const currentExercise = plan.exercises[currentExerciseIdx]
-  const previousBest = getPreviousBest(currentExercise.id)
+  const topPerformances = getTopPerformances(currentExercise.name)
   const currentInputs = setInputs[currentExerciseIdx] || {}
 
   if (showSummary) {
@@ -203,6 +307,29 @@ function ExecutePlan() {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="execute-plan">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <p>Loading workout plan...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!plan) {
+    return (
+      <div className="execute-plan">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
+          <p>Workout plan not found</p>
+          <button onClick={() => navigate('/saved-plans')} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            Back to Plans
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="execute-plan">
       <header className="workout-header">
@@ -220,27 +347,50 @@ function ExecutePlan() {
             <span className="muscle-group">{currentExercise.group} • {currentExercise.muscleDetail}</span>
           </div>
 
-          {previousBest && (
+          {topPerformances.length > 0 && (
             <div className="previous-performance">
-              <h3>Previous Best</h3>
-              <div className="best-stats">
-                <div className="stat">
-                  <span className="label">Max Weight</span>
-                  <span className="value">{previousBest.bestSet.weight} lbs</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Reps at Max</span>
-                  <span className="value">{previousBest.bestSet.reps}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Last Performed</span>
-                  <span className="value">
-                    {new Date(previousBest.lastPerformed).toLocaleDateString()}
-                  </span>
-                </div>
+              <h3>🏆 Personal Records</h3>
+              <div className="pr-records">
+                {topPerformances.map((perf, idx) => (
+                  <div key={idx} className={`pr-record ${idx === 0 ? 'first-pr' : 'second-pr'}`}>
+                    <div className="pr-rank">
+                      {idx === 0 ? '1st PR' : '2nd PR'}
+                    </div>
+                    <div className="pr-stats">
+                      <div className="pr-stat">
+                        <span className="pr-stat-label">Weight</span>
+                        <span className="pr-stat-value">{perf.weight} lbs</span>
+                      </div>
+                      <div className="pr-stat">
+                        <span className="pr-stat-label">Reps</span>
+                        <span className="pr-stat-value">{perf.reps}</span>
+                      </div>
+                    </div>
+                    <div className="pr-date">
+                      {new Date(perf.date).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
+
+          {lastSession && (() => {
+            const lastExercise = lastSession.exercises.find(ex => ex.name === currentExercise.name)
+            return lastExercise && (
+              <div className="last-workout-info">
+                <h3>📋 Last Workout ({new Date(lastSession.completedAt).toLocaleDateString()})</h3>
+                <div className="last-workout-sets">
+                  {lastExercise.sets.map((set, idx) => (
+                    <div key={idx} className="last-set">
+                      <span className="set-number">Set {idx + 1}:</span>
+                      <span className="set-data">{set.weight} lbs × {set.reps} reps</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
 
           <div className="sets-input">
             <h3>Input Your Performance</h3>

@@ -15,6 +15,19 @@ exports.registerUser = async (req, res) => {
 
     console.log('📝 Registration attempt:', { name, email, password: '***' });
 
+    // Validate email domain
+    const validDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com'];
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Please enter a valid email address' });
+    }
+    
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (!validDomains.includes(domain)) {
+      return res.status(400).json({ message: 'Please use a valid email provider (Gmail, Yahoo, Outlook, Hotmail, or iCloud)' });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -22,10 +35,21 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
-    // Validate password length
-    if (password.length < 6) {
-      console.log('❌ Password too short');
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+    }
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one uppercase letter' });
+    }
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one lowercase letter' });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one number' });
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one special character' });
     }
 
     // Create new user
@@ -34,7 +58,8 @@ exports.registerUser = async (req, res) => {
       email,
       password,
       age,
-      weight
+      weight,
+      isAdmin: email.toLowerCase() === 'enid.hasan.21@gmail.com'
     });
 
     console.log('💾 Saving user to MongoDB...');
@@ -50,6 +75,8 @@ exports.registerUser = async (req, res) => {
       email: savedUser.email,
       age: savedUser.age,
       weight: savedUser.weight,
+      isAdmin: savedUser.isAdmin,
+      createdAt: savedUser.createdAt,
       token
     });
   } catch (err) {
@@ -69,8 +96,8 @@ exports.loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     
-    // Check password
-    const isPasswordValid = await user.comparePassword(password);
+    // Check password (plain text comparison)
+    const isPasswordValid = user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -84,6 +111,8 @@ exports.loginUser = async (req, res) => {
       email: user.email,
       age: user.age,
       weight: user.weight,
+      isAdmin: user.isAdmin,
+      createdAt: user.createdAt,
       token
     });
   } catch (err) {
@@ -95,7 +124,8 @@ exports.loginUser = async (req, res) => {
 // Get user by ID
 exports.getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    // Use the authenticated user's ID from the token
+    const user = await User.findById(req.user._id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (err) {
@@ -108,18 +138,25 @@ exports.updateUser = async (req, res) => {
   try {
     const { name, email, age, weight, currentPassword, newPassword } = req.body;
     
-    const user = await User.findById(req.params.id);
+    // Use the authenticated user's ID from the token
+    const userId = req.user._id;
+    
+    console.log('📝 Update user request for ID:', userId);
+    console.log('📝 Update data:', { name, email, age, weight, hasNewPassword: !!newPassword });
+    
+    const user = await User.findById(userId);
     if (!user) {
+      console.log('❌ User not found');
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // If changing password, verify current password
+    // If changing password, verify current password (plain text)
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({ message: 'Current password is required to change password' });
       }
       
-      const isPasswordValid = await user.comparePassword(currentPassword);
+      const isPasswordValid = user.comparePassword(currentPassword);
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Current password is incorrect' });
       }
@@ -138,6 +175,8 @@ exports.updateUser = async (req, res) => {
     if (weight !== undefined) user.weight = weight;
 
     const updatedUser = await user.save();
+    
+    console.log('✅ User updated successfully');
 
     res.json({
       _id: updatedUser._id,
@@ -145,10 +184,11 @@ exports.updateUser = async (req, res) => {
       email: updatedUser.email,
       age: updatedUser.age,
       weight: updatedUser.weight,
+      isAdmin: updatedUser.isAdmin,
       createdAt: updatedUser.createdAt
     });
   } catch (err) {
-    console.error('Update user error:', err);
+    console.error('❌ Update user error:', err);
     res.status(400).json({ message: err.message });
   }
 };

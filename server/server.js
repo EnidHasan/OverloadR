@@ -19,6 +19,7 @@ app.use('/api/workouts', require('./routes/workoutRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/plans', require('./routes/planRoutes'));
 app.use('/api/performance', require('./routes/performanceRoutes'));
+app.use('/api/contact', require('./routes/contactRoutes'));
 
 // Basic route
 app.get('/api', (req, res) => {
@@ -36,18 +37,6 @@ app.get('/api/health', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-// Handle port already in use
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Trying port ${PORT + 1}...`);
-    server.listen(PORT + 1, () => {
-      console.log(`Server running on port ${PORT + 1}`);
-    });
-  } else {
-    throw err;
-  }
 });

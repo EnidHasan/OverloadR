@@ -11,4 +11,10 @@ router.get('/:userId/:exerciseName', performanceController.getExercisePerformanc
 // Update or create performance record
 router.post('/', performanceController.updatePerformance);
 
+// Save completed workout
+router.post('/workout', performanceController.saveWorkout);
+
+// Get last workout session for a specific plan
+router.get('/last-session/:userId/:planId', performanceController.getLastSession);
+
 module.exports = router;

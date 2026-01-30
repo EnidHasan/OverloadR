@@ -49,3 +49,40 @@ exports.deleteWorkout = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Get workout history for a specific exercise
+exports.getExerciseHistory = async (req, res) => {
+  try {
+    const { userId, exerciseName } = req.params;
+    const workouts = await Workout.find({ userId, exerciseName })
+      .sort({ date: -1 })
+      .limit(5);
+    res.json(workouts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get workouts grouped by exercise name
+exports.getGroupedWorkouts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const mongoose = require('mongoose');
+    const workouts = await Workout.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      { $sort: { date: -1 } },
+      { $group: {
+          _id: '$exerciseName',
+          group: { $first: '$group' },
+          muscleDetail: { $first: '$muscleDetail' },
+          lastWorkout: { $first: '$date' },
+          totalWorkouts: { $sum: 1 }
+        }
+      },
+      { $sort: { lastWorkout: -1 } }
+    ]);
+    res.json(workouts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

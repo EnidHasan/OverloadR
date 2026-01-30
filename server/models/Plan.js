@@ -12,7 +12,7 @@ const planSchema = new mongoose.Schema({
   },
   exercises: [
     {
-      exerciseName: {
+      name: {
         type: String,
         required: true,
       },
@@ -24,10 +24,18 @@ const planSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      sets: {
-        type: Number,
-        default: 3,
-      },
+      sets: [
+        {
+          reps: {
+            type: Number,
+            default: 8,
+          },
+          weight: {
+            type: Number,
+            default: 0,
+          },
+        },
+      ],
     },
   ],
   createdAt: {

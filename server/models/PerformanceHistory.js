@@ -10,14 +10,22 @@ const performanceHistorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  maxWeight: {
-    type: Number,
-    default: 0,
-  },
-  repsAtMaxWeight: {
-    type: Number,
-    default: 0,
-  },
+  topPerformances: [
+    {
+      weight: {
+        type: Number,
+        required: true,
+      },
+      reps: {
+        type: Number,
+        required: true,
+      },
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   lastUpdated: {
     type: Date,
     default: Date.now,

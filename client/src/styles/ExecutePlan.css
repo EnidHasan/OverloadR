@@ -159,6 +159,145 @@
   margin-bottom: 0.5rem;
 }
 
+.pr-records {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.pr-record {
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--card-bg) 100%);
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.pr-record:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pr-record.first-pr {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, var(--card-bg) 100%);
+}
+
+.pr-record.second-pr {
+  border-color: var(--text-muted);
+  opacity: 0.9;
+}
+
+.pr-rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pr-record.first-pr .pr-rank {
+  color: var(--primary);
+}
+
+.pr-record.second-pr .pr-rank {
+  color: var(--text-muted);
+}
+
+.pr-rank::before {
+  content: '🏆';
+  font-size: 1.2rem;
+}
+
+.pr-record.second-pr .pr-rank::before {
+  content: '🥈';
+}
+
+.pr-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.pr-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.pr-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pr-record.first-pr .pr-stat-value {
+  color: var(--primary);
+}
+
+.pr-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.last-workout-info {
+  background: var(--bg-tertiary);
+  border-left: 4px solid #3498db;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.last-workout-info h3 {
+  margin: 0 0 1rem 0;
+  color: #3498db;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.last-workout-sets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.last-set {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--card-bg);
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+}
+
+.last-set .set-number {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 50px;
+}
+
+.last-set .set-data {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 .stat .value {
   display: block;
   font-size: 1.5rem;

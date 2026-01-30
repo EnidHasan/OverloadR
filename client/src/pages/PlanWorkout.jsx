@@ -1,7 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import { useToast } from '../components/Toast'
+import { useAuth } from '../context/AuthContext'
 import '../styles/PlanWorkout.css'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 const EXERCISES = [
   { id: 'bench-press', name: 'Bench Press', group: 'Chest', muscleDetail: 'Pectoralis major' },
@@ -178,10 +182,12 @@ const GROUP_ORDER = ['Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Legs', 
 function PlanWorkout() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { user } = useAuth()
   const [selectedIds, setSelectedIds] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [planName, setPlanName] = useState('')
   const [showSaveForm, setShowSaveForm] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const groupedExercises = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
@@ -221,7 +227,12 @@ function PlanWorkout() {
     ))
   }
 
-  const handleSavePlan = () => {
+  const handleSavePlan = async () => {
+    console.log('handleSavePlan called')
+    console.log('Plan name:', planName)
+    console.log('Selected IDs:', selectedIds)
+    console.log('User:', user)
+    
     if (!planName.trim()) {
       showToast('Please enter a plan name', 'warning')
       return
@@ -232,30 +243,51 @@ function PlanWorkout() {
       return
     }
 
-    const selectedExercises = EXERCISES.filter(exercise => selectedIds.includes(exercise.id)).map(exercise => ({
-      id: exercise.id,
-      name: exercise.name,
-      group: exercise.group,
-      muscleDetail: exercise.muscleDetail,
-      sets: [{ reps: 8, weight: 0 }, { reps: 8, weight: 0 }, { reps: 8, weight: 0 }]
-    }))
-
-    const newPlan = {
-      id: Date.now(),
-      name: planName,
-      exercises: selectedExercises,
-      createdAt: new Date().toISOString()
+    if (!user) {
+      showToast('Please log in to save plans', 'error')
+      navigate('/login')
+      return
     }
 
-    const existingPlans = JSON.parse(localStorage.getItem('workoutPlans') || '[]')
-    existingPlans.push(newPlan)
-    localStorage.setItem('workoutPlans', JSON.stringify(existingPlans))
+    setSaving(true)
 
-    setPlanName('')
-    setSelectedIds([])
-    setShowSaveForm(false)
-    showToast('Plan saved successfully!', 'success')
-    setTimeout(() => navigate('/saved-plans'), 500)
+    try {
+      const selectedExercises = EXERCISES.filter(exercise => selectedIds.includes(exercise.id)).map(exercise => ({
+        name: exercise.name,
+        group: exercise.group,
+        muscleDetail: exercise.muscleDetail,
+        sets: [{ reps: 8, weight: 0 }, { reps: 8, weight: 0 }, { reps: 8, weight: 0 }]
+      }))
+
+      console.log('Selected exercises:', selectedExercises)
+
+      const newPlan = {
+        userId: user.id,
+        name: planName,
+        exercises: selectedExercises
+      }
+
+      console.log('Sending plan to server:', newPlan)
+      console.log('API URL:', `${API_URL}/plans`)
+
+      const response = await axios.post(`${API_URL}/plans`, newPlan, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+
+      console.log('Plan saved successfully:', response.data)
+
+      setPlanName('')
+      setSelectedIds([])
+      setShowSaveForm(false)
+      showToast('Plan saved successfully!', 'success')
+      setTimeout(() => navigate('/saved-plans'), 500)
+    } catch (error) {
+      console.error('Error saving plan:', error)
+      console.error('Error response:', error.response?.data)
+      showToast('Failed to save plan', 'error')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleClear = () => setSelectedIds([])
@@ -263,8 +295,8 @@ function PlanWorkout() {
   return (
     <div className="plan-workout">
       <header className="plan-header">
-        <h1>Plan Workout</h1>
-        <p>Select exercises and they’ll be organized into broad body-part groups.</p>
+        <h1>Create Workout Plan</h1>
+        <p>Select exercises to build your custom workout routine</p>
         <div className="search-bar">
           <input
             type="text"
@@ -330,8 +362,8 @@ function PlanWorkout() {
                 className="plan-name-input"
               />
               <div className="form-buttons">
-                <button onClick={handleSavePlan} className="confirm-save-btn">
-                  Save
+                <button onClick={handleSavePlan} className="confirm-save-btn" disabled={saving}>
+                  {saving ? 'Saving...' : 'Save'}
                 </button>
                 <button 
                   onClick={() => {
@@ -339,6 +371,7 @@ function PlanWorkout() {
                     setPlanName('')
                   }}
                   className="cancel-save-btn"
+                  disabled={saving}
                 >
                   Cancel
                 </button>

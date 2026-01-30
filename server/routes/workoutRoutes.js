@@ -5,6 +5,12 @@ const workoutController = require('../controllers/workoutController');
 // Get all workouts for a user
 router.get('/:userId', workoutController.getWorkouts);
 
+// Get workouts grouped by exercise name
+router.get('/grouped/:userId', workoutController.getGroupedWorkouts);
+
+// Get workout history for a specific exercise
+router.get('/history/:userId/:exerciseName', workoutController.getExerciseHistory);
+
 // Create a new workout
 router.post('/', workoutController.createWorkout);
 
