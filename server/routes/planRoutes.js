@@ -1,7 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const planController = require('../controllers/planController');
 const { protect } = require('../middleware/auth');
+
+const planLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: { message: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.use(planLimiter);
 
 // Logging middleware for debugging
 router.use((req, res, next) => {

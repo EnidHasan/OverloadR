@@ -4,6 +4,16 @@ const rateLimit = require('express-rate-limit');
 const userController = require('../controllers/userController');
 const { protect } = require('../middleware/auth');
 
+const userLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: { message: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.use(userLimiter);
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20,
