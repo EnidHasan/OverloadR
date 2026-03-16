@@ -15,6 +15,7 @@ function Login() {
     email: '',
     password: ''
   })
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -76,15 +77,35 @@ function Login() {
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              placeholder="Enter your password"
-              required
-            />
+            <div className="password-input">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Enter your password"
+                required
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(prev => !prev)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? (
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l2.1 2.1C2.6 7.04 1.5 9 1.5 12c2.5 5.2 6.5 8 10.5 8 2.03 0 3.94-.63 5.6-1.85l2.87 2.87a.75.75 0 1 0 1.06-1.06l-18-18Zm9.47 15.78A5.25 5.25 0 0 1 5.26 8.9l2.2 2.2a3 3 0 0 0 4.19 4.19l1.35 1.35Zm4.74-3.04-2.01-2a3 3 0 0 0-4.2-4.2L9.6 7.08a5.25 5.25 0 0 1 8.14 5.13c0 .97-.24 1.9-.7 2.75ZM12 4.5c3.83 0 7.2 2.7 9 7.5a15.9 15.9 0 0 1-2.28 4.03l-1.1-1.1A10.9 10.9 0 0 0 19.5 12C17.73 8.04 15.03 6 12 6c-.7 0-1.38.1-2.05.3l-1.6-1.6A8.8 8.8 0 0 1 12 4.5Z" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 4.5c-4 0-8 2.8-10.5 7.5C4 17.2 8 20 12 20s8-2.8 10.5-8c-2.5-4.7-6.5-7.5-10.5-7.5Zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="submit-button" disabled={loading}>

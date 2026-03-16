@@ -38,6 +38,11 @@ export const AuthProvider = ({ children }) => {
     const userIsAdmin = localStorage.getItem('userIsAdmin') === 'true'
     const userAge = localStorage.getItem('userAge')
     const userWeight = localStorage.getItem('userWeight')
+    const userWeightUnit = localStorage.getItem('userWeightUnit')
+    const userHeightUnit = localStorage.getItem('userHeightUnit')
+    const userHeightCm = localStorage.getItem('userHeightCm')
+    const userHeightFeet = localStorage.getItem('userHeightFeet')
+    const userHeightInches = localStorage.getItem('userHeightInches')
     const userPhone = localStorage.getItem('userPhone')
     const userAddressLine1 = localStorage.getItem('userAddressLine1')
     const userAddressLine2 = localStorage.getItem('userAddressLine2')
@@ -73,6 +78,11 @@ export const AuthProvider = ({ children }) => {
       isAdmin: userIsAdmin,
       age: userAge ? parseInt(userAge) : undefined,
       weight: userWeight ? parseFloat(userWeight) : undefined,
+      weightUnit: userWeightUnit || undefined,
+      heightUnit: userHeightUnit || undefined,
+      heightCm: userHeightCm ? parseFloat(userHeightCm) : undefined,
+      heightFeet: userHeightFeet ? parseInt(userHeightFeet) : undefined,
+      heightInches: userHeightInches ? parseInt(userHeightInches) : undefined,
       phone: userPhone || undefined,
       addressLine1: userAddressLine1 || undefined,
       addressLine2: userAddressLine2 || undefined,
@@ -99,6 +109,11 @@ export const AuthProvider = ({ children }) => {
     // Store additional user data if available
     if (userData.age) localStorage.setItem('userAge', userData.age.toString())
     if (userData.weight) localStorage.setItem('userWeight', userData.weight.toString())
+    if (userData.weightUnit) localStorage.setItem('userWeightUnit', userData.weightUnit)
+    if (userData.heightUnit) localStorage.setItem('userHeightUnit', userData.heightUnit)
+    if (userData.heightCm !== undefined) localStorage.setItem('userHeightCm', userData.heightCm.toString())
+    if (userData.heightFeet !== undefined) localStorage.setItem('userHeightFeet', userData.heightFeet.toString())
+    if (userData.heightInches !== undefined) localStorage.setItem('userHeightInches', userData.heightInches.toString())
     if (userData.phone) localStorage.setItem('userPhone', userData.phone)
     if (userData.addressLine1) localStorage.setItem('userAddressLine1', userData.addressLine1)
     if (userData.addressLine2) localStorage.setItem('userAddressLine2', userData.addressLine2)
@@ -115,6 +130,11 @@ export const AuthProvider = ({ children }) => {
       isAdmin: userData.isAdmin || false,
       age: userData.age,
       weight: userData.weight,
+      weightUnit: userData.weightUnit,
+      heightUnit: userData.heightUnit,
+      heightCm: userData.heightCm,
+      heightFeet: userData.heightFeet,
+      heightInches: userData.heightInches,
       phone: userData.phone,
       addressLine1: userData.addressLine1,
       addressLine2: userData.addressLine2,
@@ -136,6 +156,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('loginTime')
     localStorage.removeItem('userAge')
     localStorage.removeItem('userWeight')
+    localStorage.removeItem('userWeightUnit')
+    localStorage.removeItem('userHeightUnit')
+    localStorage.removeItem('userHeightCm')
+    localStorage.removeItem('userHeightFeet')
+    localStorage.removeItem('userHeightInches')
     localStorage.removeItem('userPhone')
     localStorage.removeItem('userAddressLine1')
     localStorage.removeItem('userAddressLine2')
@@ -160,6 +185,21 @@ export const AuthProvider = ({ children }) => {
     }
     if (updatedData.weight !== undefined) {
       localStorage.setItem('userWeight', updatedData.weight.toString())
+    }
+    if (updatedData.weightUnit !== undefined) {
+      localStorage.setItem('userWeightUnit', updatedData.weightUnit || '')
+    }
+    if (updatedData.heightUnit !== undefined) {
+      localStorage.setItem('userHeightUnit', updatedData.heightUnit || '')
+    }
+    if (updatedData.heightCm !== undefined) {
+      localStorage.setItem('userHeightCm', updatedData.heightCm?.toString() || '')
+    }
+    if (updatedData.heightFeet !== undefined) {
+      localStorage.setItem('userHeightFeet', updatedData.heightFeet?.toString() || '')
+    }
+    if (updatedData.heightInches !== undefined) {
+      localStorage.setItem('userHeightInches', updatedData.heightInches?.toString() || '')
     }
     if (updatedData.phone !== undefined) {
       localStorage.setItem('userPhone', updatedData.phone || '')
@@ -190,6 +230,11 @@ export const AuthProvider = ({ children }) => {
       email: updatedData.email || prev?.email,
       age: updatedData.age !== undefined ? updatedData.age : prev?.age,
       weight: updatedData.weight !== undefined ? updatedData.weight : prev?.weight,
+      weightUnit: updatedData.weightUnit !== undefined ? updatedData.weightUnit : prev?.weightUnit,
+      heightUnit: updatedData.heightUnit !== undefined ? updatedData.heightUnit : prev?.heightUnit,
+      heightCm: updatedData.heightCm !== undefined ? updatedData.heightCm : prev?.heightCm,
+      heightFeet: updatedData.heightFeet !== undefined ? updatedData.heightFeet : prev?.heightFeet,
+      heightInches: updatedData.heightInches !== undefined ? updatedData.heightInches : prev?.heightInches,
       phone: updatedData.phone !== undefined ? updatedData.phone : prev?.phone,
       addressLine1: updatedData.addressLine1 !== undefined ? updatedData.addressLine1 : prev?.addressLine1,
       addressLine2: updatedData.addressLine2 !== undefined ? updatedData.addressLine2 : prev?.addressLine2,

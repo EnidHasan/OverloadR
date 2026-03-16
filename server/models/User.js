@@ -19,6 +19,19 @@ const userSchema = new mongoose.Schema({
   },
   age: Number,
   weight: Number,
+  weightUnit: {
+    type: String,
+    enum: ['lbs', 'kg'],
+    default: 'lbs'
+  },
+  heightUnit: {
+    type: String,
+    enum: ['cm', 'ft'],
+    default: 'cm'
+  },
+  heightCm: Number,
+  heightFeet: Number,
+  heightInches: Number,
   phone: String,
   addressLine1: String,
   addressLine2: String,

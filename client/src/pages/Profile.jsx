@@ -13,6 +13,9 @@ function Profile() {
   const { showToast } = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -23,6 +26,11 @@ function Profile() {
     email: '',
     age: '',
     weight: '',
+    weightUnit: 'lbs',
+    heightUnit: 'cm',
+    heightCm: '',
+    heightFeet: '',
+    heightInches: '',
     phone: '',
     addressLine1: '',
     addressLine2: '',
@@ -76,6 +84,11 @@ function Profile() {
       // Set initial form data from user context and localStorage
       const storedAge = localStorage.getItem('userAge')
       const storedWeight = localStorage.getItem('userWeight')
+      const storedWeightUnit = localStorage.getItem('userWeightUnit')
+      const storedHeightUnit = localStorage.getItem('userHeightUnit')
+      const storedHeightCm = localStorage.getItem('userHeightCm')
+      const storedHeightFeet = localStorage.getItem('userHeightFeet')
+      const storedHeightInches = localStorage.getItem('userHeightInches')
       const storedPhone = localStorage.getItem('userPhone')
       const storedAddressLine1 = localStorage.getItem('userAddressLine1')
       const storedAddressLine2 = localStorage.getItem('userAddressLine2')
@@ -89,6 +102,11 @@ function Profile() {
         email: user.email || '',
         age: storedAge || user.age || '',
         weight: storedWeight || user.weight || '',
+        weightUnit: storedWeightUnit || user.weightUnit || 'lbs',
+        heightUnit: storedHeightUnit || user.heightUnit || 'cm',
+        heightCm: storedHeightCm || user.heightCm || '',
+        heightFeet: storedHeightFeet || user.heightFeet || '',
+        heightInches: storedHeightInches || user.heightInches || '',
         phone: storedPhone || user.phone || '',
         addressLine1: storedAddressLine1 || user.addressLine1 || '',
         addressLine2: storedAddressLine2 || user.addressLine2 || '',
@@ -123,6 +141,11 @@ function Profile() {
             email: response.data.email || '',
             age: response.data.age || '',
             weight: response.data.weight || '',
+            weightUnit: response.data.weightUnit || 'lbs',
+            heightUnit: response.data.heightUnit || 'cm',
+            heightCm: response.data.heightCm !== undefined ? response.data.heightCm : '',
+            heightFeet: response.data.heightFeet !== undefined ? response.data.heightFeet : '',
+            heightInches: response.data.heightInches !== undefined ? response.data.heightInches : '',
             phone: response.data.phone || '',
             addressLine1: response.data.addressLine1 || '',
             addressLine2: response.data.addressLine2 || '',
@@ -141,6 +164,11 @@ function Profile() {
           // Update localStorage with server data
           if (response.data.age) localStorage.setItem('userAge', response.data.age)
           if (response.data.weight) localStorage.setItem('userWeight', response.data.weight)
+          if (response.data.weightUnit) localStorage.setItem('userWeightUnit', response.data.weightUnit)
+          if (response.data.heightUnit) localStorage.setItem('userHeightUnit', response.data.heightUnit)
+          if (response.data.heightCm !== undefined) localStorage.setItem('userHeightCm', response.data.heightCm)
+          if (response.data.heightFeet !== undefined) localStorage.setItem('userHeightFeet', response.data.heightFeet)
+          if (response.data.heightInches !== undefined) localStorage.setItem('userHeightInches', response.data.heightInches)
           if (response.data.phone) localStorage.setItem('userPhone', response.data.phone)
           if (response.data.addressLine1) localStorage.setItem('userAddressLine1', response.data.addressLine1)
           if (response.data.addressLine2) localStorage.setItem('userAddressLine2', response.data.addressLine2)
@@ -182,6 +210,103 @@ function Profile() {
     })
   }
 
+  const toNumber = (value) => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined
+    }
+    const num = Number(value)
+    return Number.isNaN(num) ? undefined : num
+  }
+
+  const convertLbsToKg = (lbs) => lbs / 2.20462
+  const convertKgToLbs = (kg) => kg * 2.20462
+
+  const convertCmToFeetInches = (cm) => {
+    const totalInches = cm / 2.54
+    let feet = Math.floor(totalInches / 12)
+    let inches = Math.round(totalInches - feet * 12)
+    if (inches === 12) {
+      feet += 1
+      inches = 0
+    }
+    return { feet, inches }
+  }
+
+  const convertFeetInchesToCm = (feet, inches) => {
+    const totalInches = feet * 12 + inches
+    return totalInches * 2.54
+  }
+
+  const handleWeightUnitChange = (e) => {
+    const nextUnit = e.target.value
+    if (nextUnit === formData.weightUnit) {
+      return
+    }
+
+    const currentWeight = toNumber(formData.weight)
+    if (currentWeight === undefined) {
+      setFormData(prev => ({
+        ...prev,
+        weightUnit: nextUnit
+      }))
+      return
+    }
+
+    const converted = nextUnit === 'kg'
+      ? convertLbsToKg(currentWeight)
+      : convertKgToLbs(currentWeight)
+
+    setFormData(prev => ({
+      ...prev,
+      weightUnit: nextUnit,
+      weight: Number.isFinite(converted) ? converted.toFixed(1) : ''
+    }))
+  }
+
+  const handleHeightUnitChange = (e) => {
+    const nextUnit = e.target.value
+    if (nextUnit === formData.heightUnit) {
+      return
+    }
+
+    if (nextUnit === 'cm') {
+      const feet = toNumber(formData.heightFeet)
+      const inches = toNumber(formData.heightInches)
+      if (feet === undefined && inches === undefined) {
+        setFormData(prev => ({
+          ...prev,
+          heightUnit: nextUnit
+        }))
+        return
+      }
+
+      const cm = convertFeetInchesToCm(feet || 0, inches || 0)
+      setFormData(prev => ({
+        ...prev,
+        heightUnit: nextUnit,
+        heightCm: Number.isFinite(cm) ? cm.toFixed(1) : ''
+      }))
+      return
+    }
+
+    const cmValue = toNumber(formData.heightCm)
+    if (cmValue === undefined) {
+      setFormData(prev => ({
+        ...prev,
+        heightUnit: nextUnit
+      }))
+      return
+    }
+
+    const { feet, inches } = convertCmToFeetInches(cmValue)
+    setFormData(prev => ({
+      ...prev,
+      heightUnit: nextUnit,
+      heightFeet: Number.isFinite(feet) ? String(feet) : '',
+      heightInches: Number.isFinite(inches) ? String(inches) : ''
+    }))
+  }
+
   const handleSubmit = async (e) => {
     if (e?.preventDefault) {
       e.preventDefault()
@@ -206,6 +331,11 @@ function Profile() {
         email: formData.email,
         age: formData.age ? parseInt(formData.age) : undefined,
         weight: formData.weight ? parseFloat(formData.weight) : undefined,
+        weightUnit: formData.weightUnit,
+        heightUnit: formData.heightUnit,
+        heightCm: formData.heightUnit === 'cm' ? toNumber(formData.heightCm) : null,
+        heightFeet: formData.heightUnit === 'ft' ? toNumber(formData.heightFeet) : null,
+        heightInches: formData.heightUnit === 'ft' ? toNumber(formData.heightInches) : null,
         phone: formData.phone || '',
         addressLine1: formData.addressLine1 || '',
         addressLine2: formData.addressLine2 || '',
@@ -241,6 +371,11 @@ function Profile() {
         email: response.data.email || '',
         age: response.data.age || '',
         weight: response.data.weight || '',
+        weightUnit: response.data.weightUnit || prev.weightUnit,
+        heightUnit: response.data.heightUnit || prev.heightUnit,
+        heightCm: response.data.heightCm !== undefined ? response.data.heightCm : '',
+        heightFeet: response.data.heightFeet !== undefined ? response.data.heightFeet : '',
+        heightInches: response.data.heightInches !== undefined ? response.data.heightInches : '',
         phone: response.data.phone || '',
         addressLine1: response.data.addressLine1 || '',
         addressLine2: response.data.addressLine2 || '',
@@ -336,6 +471,11 @@ function Profile() {
       email: user.email || '',
       age: localStorage.getItem('userAge') || user.age || '',
       weight: localStorage.getItem('userWeight') || user.weight || '',
+      weightUnit: localStorage.getItem('userWeightUnit') || user.weightUnit || 'lbs',
+      heightUnit: localStorage.getItem('userHeightUnit') || user.heightUnit || 'cm',
+      heightCm: localStorage.getItem('userHeightCm') || user.heightCm || '',
+      heightFeet: localStorage.getItem('userHeightFeet') || user.heightFeet || '',
+      heightInches: localStorage.getItem('userHeightInches') || user.heightInches || '',
       phone: localStorage.getItem('userPhone') || user.phone || '',
       addressLine1: localStorage.getItem('userAddressLine1') || user.addressLine1 || '',
       addressLine2: localStorage.getItem('userAddressLine2') || user.addressLine2 || '',
@@ -442,19 +582,96 @@ function Profile() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="weight">Weight (lbs)</label>
-                <input
-                  type="number"
-                  id="weight"
-                  name="weight"
-                  value={formData.weight}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  step="0.1"
-                  min="1"
-                  placeholder="Enter your weight"
-                />
+                <label htmlFor="weight">Weight</label>
+                <div className="input-with-select">
+                  <input
+                    type="number"
+                    id="weight"
+                    name="weight"
+                    value={formData.weight}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    step="0.1"
+                    min="1"
+                    placeholder={`Enter your weight (${formData.weightUnit})`}
+                  />
+                  <select
+                    name="weightUnit"
+                    value={formData.weightUnit}
+                    onChange={handleWeightUnitChange}
+                    disabled={!isEditing}
+                    aria-label="Weight unit"
+                  >
+                    <option value="lbs">lbs</option>
+                    <option value="kg">kg</option>
+                  </select>
+                </div>
               </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor={formData.heightUnit === 'cm' ? 'heightCm' : 'heightFeet'}>Height</label>
+              {formData.heightUnit === 'cm' ? (
+                <div className="input-with-select">
+                  <input
+                    type="number"
+                    id="heightCm"
+                    name="heightCm"
+                    value={formData.heightCm}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    step="0.1"
+                    min="30"
+                    max="300"
+                    placeholder="Enter your height"
+                  />
+                  <select
+                    name="heightUnit"
+                    value={formData.heightUnit}
+                    onChange={handleHeightUnitChange}
+                    disabled={!isEditing}
+                    aria-label="Height unit"
+                  >
+                    <option value="cm">cm</option>
+                    <option value="ft">ft/in</option>
+                  </select>
+                </div>
+              ) : (
+                <div className="height-inputs">
+                  <input
+                    type="number"
+                    id="heightFeet"
+                    name="heightFeet"
+                    value={formData.heightFeet}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    min="1"
+                    max="8"
+                    placeholder="Feet"
+                  />
+                  <input
+                    type="number"
+                    id="heightInches"
+                    name="heightInches"
+                    value={formData.heightInches}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    min="0"
+                    max="11"
+                    placeholder="Inches"
+                  />
+                  <select
+                    name="heightUnit"
+                    value={formData.heightUnit}
+                    onChange={handleHeightUnitChange}
+                    disabled={!isEditing}
+                    aria-label="Height unit"
+                  >
+                    <option value="cm">cm</option>
+                    <option value="ft">ft/in</option>
+                  </select>
+                </div>
+              )}
             </div>
 
             <div className="form-group">
@@ -559,38 +776,98 @@ function Profile() {
               
               <div className="form-group">
                 <label htmlFor="currentPassword">Current Password</label>
-                <input
-                  type="password"
-                  id="currentPassword"
-                  name="currentPassword"
-                  value={formData.currentPassword}
-                  onChange={handleChange}
-                  placeholder="Enter current password"
-                />
+                <div className="password-input">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    id="currentPassword"
+                    name="currentPassword"
+                    value={formData.currentPassword}
+                    onChange={handleChange}
+                    placeholder="Enter current password"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="toggle-password"
+                    onClick={() => setShowCurrentPassword(prev => !prev)}
+                    aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showCurrentPassword}
+                  >
+                    {showCurrentPassword ? (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l2.1 2.1C2.6 7.04 1.5 9 1.5 12c2.5 5.2 6.5 8 10.5 8 2.03 0 3.94-.63 5.6-1.85l2.87 2.87a.75.75 0 1 0 1.06-1.06l-18-18Zm9.47 15.78A5.25 5.25 0 0 1 5.26 8.9l2.2 2.2a3 3 0 0 0 4.19 4.19l1.35 1.35Zm4.74-3.04-2.01-2a3 3 0 0 0-4.2-4.2L9.6 7.08a5.25 5.25 0 0 1 8.14 5.13c0 .97-.24 1.9-.7 2.75ZM12 4.5c3.83 0 7.2 2.7 9 7.5a15.9 15.9 0 0 1-2.28 4.03l-1.1-1.1A10.9 10.9 0 0 0 19.5 12C17.73 8.04 15.03 6 12 6c-.7 0-1.38.1-2.05.3l-1.6-1.6A8.8 8.8 0 0 1 12 4.5Z" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 4.5c-4 0-8 2.8-10.5 7.5C4 17.2 8 20 12 20s8-2.8 10.5-8c-2.5-4.7-6.5-7.5-10.5-7.5Zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="form-group">
                 <label htmlFor="newPassword">New Password</label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  placeholder="Enter new password (min 6 characters)"
-                />
+                <div className="password-input">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    id="newPassword"
+                    name="newPassword"
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    placeholder="Enter new password (min 6 characters)"
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="toggle-password"
+                    onClick={() => setShowNewPassword(prev => !prev)}
+                    aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showNewPassword}
+                  >
+                    {showNewPassword ? (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l2.1 2.1C2.6 7.04 1.5 9 1.5 12c2.5 5.2 6.5 8 10.5 8 2.03 0 3.94-.63 5.6-1.85l2.87 2.87a.75.75 0 1 0 1.06-1.06l-18-18Zm9.47 15.78A5.25 5.25 0 0 1 5.26 8.9l2.2 2.2a3 3 0 0 0 4.19 4.19l1.35 1.35Zm4.74-3.04-2.01-2a3 3 0 0 0-4.2-4.2L9.6 7.08a5.25 5.25 0 0 1 8.14 5.13c0 .97-.24 1.9-.7 2.75ZM12 4.5c3.83 0 7.2 2.7 9 7.5a15.9 15.9 0 0 1-2.28 4.03l-1.1-1.1A10.9 10.9 0 0 0 19.5 12C17.73 8.04 15.03 6 12 6c-.7 0-1.38.1-2.05.3l-1.6-1.6A8.8 8.8 0 0 1 12 4.5Z" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 4.5c-4 0-8 2.8-10.5 7.5C4 17.2 8 20 12 20s8-2.8 10.5-8c-2.5-4.7-6.5-7.5-10.5-7.5Zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm New Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Confirm new password"
-                />
+                <div className="password-input">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Confirm new password"
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="toggle-password"
+                    onClick={() => setShowConfirmPassword(prev => !prev)}
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showConfirmPassword}
+                  >
+                    {showConfirmPassword ? (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l2.1 2.1C2.6 7.04 1.5 9 1.5 12c2.5 5.2 6.5 8 10.5 8 2.03 0 3.94-.63 5.6-1.85l2.87 2.87a.75.75 0 1 0 1.06-1.06l-18-18Zm9.47 15.78A5.25 5.25 0 0 1 5.26 8.9l2.2 2.2a3 3 0 0 0 4.19 4.19l1.35 1.35Zm4.74-3.04-2.01-2a3 3 0 0 0-4.2-4.2L9.6 7.08a5.25 5.25 0 0 1 8.14 5.13c0 .97-.24 1.9-.7 2.75ZM12 4.5c3.83 0 7.2 2.7 9 7.5a15.9 15.9 0 0 1-2.28 4.03l-1.1-1.1A10.9 10.9 0 0 0 19.5 12C17.73 8.04 15.03 6 12 6c-.7 0-1.38.1-2.05.3l-1.6-1.6A8.8 8.8 0 0 1 12 4.5Z" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 4.5c-4 0-8 2.8-10.5 7.5C4 17.2 8 20 12 20s8-2.8 10.5-8c-2.5-4.7-6.5-7.5-10.5-7.5Zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="button-group">

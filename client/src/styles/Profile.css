@@ -239,6 +239,86 @@
   box-sizing: border-box;
 }
 
+.form-group select {
+  width: 100%;
+  padding: 0.85rem;
+  border: 2px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.form-group select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--bg-tertiary);
+}
+
+.input-with-select {
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.height-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 110px;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  padding-right: 4.25rem;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  line-height: 0;
+}
+
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+}
+
+.toggle-password:hover {
+  color: var(--primary);
+  background: rgba(239, 68, 68, 0.08);
+  transform: translateY(-50%) scale(1.06);
+}
+
+.toggle-password:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .form-group input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -250,6 +330,21 @@
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2), 0 0 20px rgba(239, 68, 68, 0.15);
   transform: scale(1.01);
+}
+
+.form-group select:not(:disabled):focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2), 0 0 20px rgba(239, 68, 68, 0.15);
+}
+
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  box-shadow: 0 0 0 1000px var(--input-bg) inset;
+  caret-color: var(--text-primary);
+  border-color: var(--input-border);
 }
 
 .form-row {
@@ -345,6 +440,14 @@
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .input-with-select {
+    grid-template-columns: 1fr;
+  }
+
+  .height-inputs {
+    grid-template-columns: 1fr 1fr;
   }
 
   .button-group {
