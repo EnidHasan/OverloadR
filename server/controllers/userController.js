@@ -11,13 +11,17 @@ const generateToken = (userId) => {
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, age, weight, phone, addressLine1, addressLine2, city, state, postalCode, country } = req.body;
+    const { name, email, password, age, weight, weightUnit, heightUnit, heightCm, heightFeet, heightInches, phone, addressLine1, addressLine2, city, state, postalCode, country } = req.body;
 
     console.log('📝 Registration attempt:', { name, email, password: '***' });
 
     // Validate email domain
     const validDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com'];
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Validate as a plain string first to prevent ReDoS and injection
+    if (typeof email !== 'string' || email.length > 254) {
+      return res.status(400).json({ message: 'Please enter a valid email address' });
+    }
+    const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/;
     
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: 'Please enter a valid email address' });
@@ -29,7 +33,7 @@ exports.registerUser = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: String(email) });
     if (existingUser) {
       console.log('❌ User already exists:', email);
       return res.status(400).json({ message: 'User already exists with this email' });
@@ -59,6 +63,11 @@ exports.registerUser = async (req, res) => {
       password,
       age,
       weight,
+      weightUnit,
+      heightUnit,
+      heightCm,
+      heightFeet,
+      heightInches,
       phone,
       addressLine1,
       addressLine2,
@@ -82,6 +91,11 @@ exports.registerUser = async (req, res) => {
       email: savedUser.email,
       age: savedUser.age,
       weight: savedUser.weight,
+      weightUnit: savedUser.weightUnit,
+      heightUnit: savedUser.heightUnit,
+      heightCm: savedUser.heightCm,
+      heightFeet: savedUser.heightFeet,
+      heightInches: savedUser.heightInches,
       phone: savedUser.phone,
       addressLine1: savedUser.addressLine1,
       addressLine2: savedUser.addressLine2,
@@ -104,8 +118,11 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by email — cast to string to prevent NoSQL injection
+    if (typeof email !== 'string') {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    const user = await User.findOne({ email: String(email) });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -125,6 +142,11 @@ exports.loginUser = async (req, res) => {
       email: user.email,
       age: user.age,
       weight: user.weight,
+      weightUnit: user.weightUnit,
+      heightUnit: user.heightUnit,
+      heightCm: user.heightCm,
+      heightFeet: user.heightFeet,
+      heightInches: user.heightInches,
       phone: user.phone,
       addressLine1: user.addressLine1,
       addressLine2: user.addressLine2,
@@ -173,6 +195,11 @@ exports.updateUser = async (req, res) => {
       email,
       age,
       weight,
+      weightUnit,
+      heightUnit,
+      heightCm,
+      heightFeet,
+      heightInches,
       phone,
       addressLine1,
       addressLine2,
@@ -188,7 +215,7 @@ exports.updateUser = async (req, res) => {
     const userId = req.user._id;
     
     console.log('📝 Update user request for ID:', userId);
-    console.log('📝 Update data:', { name, email, age, weight, phone, addressLine1, addressLine2, city, state, postalCode, country, hasNewPassword: !!newPassword });
+    console.log('📝 Update data:', { name, email, age, weight, weightUnit, heightUnit, heightCm, heightFeet, heightInches, phone, addressLine1, addressLine2, city, state, postalCode, country, hasNewPassword: !!newPassword });
     
     const user = await User.findById(userId);
     if (!user) {
@@ -219,6 +246,11 @@ exports.updateUser = async (req, res) => {
     if (email) user.email = email;
     if (age !== undefined) user.age = age;
     if (weight !== undefined) user.weight = weight;
+    if (weightUnit !== undefined) user.weightUnit = weightUnit;
+    if (heightUnit !== undefined) user.heightUnit = heightUnit;
+    if (heightCm !== undefined) user.heightCm = heightCm;
+    if (heightFeet !== undefined) user.heightFeet = heightFeet;
+    if (heightInches !== undefined) user.heightInches = heightInches;
     if (phone !== undefined) user.phone = phone;
     if (addressLine1 !== undefined) user.addressLine1 = addressLine1;
     if (addressLine2 !== undefined) user.addressLine2 = addressLine2;
@@ -237,6 +269,11 @@ exports.updateUser = async (req, res) => {
       email: updatedUser.email,
       age: updatedUser.age,
       weight: updatedUser.weight,
+      weightUnit: updatedUser.weightUnit,
+      heightUnit: updatedUser.heightUnit,
+      heightCm: updatedUser.heightCm,
+      heightFeet: updatedUser.heightFeet,
+      heightInches: updatedUser.heightInches,
       phone: updatedUser.phone,
       addressLine1: updatedUser.addressLine1,
       addressLine2: updatedUser.addressLine2,
