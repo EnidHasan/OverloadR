@@ -37,13 +37,17 @@ exports.updatePerformance = async (req, res) => {
 
     console.log('📊 Updating performance:', { userId, exerciseName, weight, reps });
 
-    let performance = await PerformanceHistory.findOne({ userId, exerciseName });
+    // Cast to string to prevent NoSQL injection
+    const safeUserId = String(userId);
+    const safeExerciseName = String(exerciseName);
+
+    let performance = await PerformanceHistory.findOne({ userId: safeUserId, exerciseName: safeExerciseName });
 
     if (!performance) {
       // Create new record with first performance
       performance = new PerformanceHistory({
-        userId,
-        exerciseName,
+        userId: safeUserId,
+        exerciseName: safeExerciseName,
         topPerformances: [{ weight, reps, date: new Date() }],
         lastUpdated: new Date()
       });
