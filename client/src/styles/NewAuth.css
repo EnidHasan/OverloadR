@@ -1,4 +1,4 @@
-.auth-container {
+﻿.auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -106,7 +106,7 @@
 }
 
 .error-message {
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(224, 40, 40, 0.1);
   color: var(--primary);
   padding: 1rem;
   border-radius: 8px;

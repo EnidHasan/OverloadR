@@ -1,4 +1,4 @@
-.info-page {
+﻿.info-page {
   min-height: calc(100vh - 200px);
   padding: 4rem 2rem;
   background: var(--bg-secondary);
@@ -169,7 +169,7 @@
 
 /* Terms & Privacy Specific Styles */
 .disclaimer-box {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(255, 59, 59, 0.1);
   border-left: 4px solid var(--primary);
   padding: 1.5rem;
   margin: 1.5rem 0;

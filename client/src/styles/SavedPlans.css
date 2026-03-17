@@ -1,4 +1,4 @@
-.saved-plans {
+﻿.saved-plans {
   max-width: 1000px;
   margin: 0 auto;
   padding: 2rem 1.5rem 3rem;
@@ -114,7 +114,7 @@
 .plan-card:nth-child(4) { animation-delay: 0.4s; }
 
 .plan-card:hover {
-  box-shadow: 0 12px 30px var(--shadow-lg), 0 0 30px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 12px 30px var(--shadow-lg), 0 0 30px rgba(255, 59, 59, 0.15);
   transform: translateY(-5px) scale(1.02);
 }
 
@@ -141,7 +141,7 @@
 
 .plan-edit-section {
   padding: 1.5rem;
-  background: rgba(239, 68, 68, 0.05);
+  background: rgba(255, 59, 59, 0.05);
   border-bottom: 2px solid var(--primary);
   margin-bottom: 1rem;
 }
@@ -172,7 +172,7 @@
 .plan-name-input:focus {
   outline: none;
   border-color: var(--primary-hover);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 59, 59, 0.1);
 }
 
 .save-name-btn {
@@ -227,7 +227,7 @@
 
 .plan-name-edit-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 0 0 3px rgba(224, 40, 40, 0.2);
 }
 
 .save-edit-btn,
@@ -416,7 +416,7 @@
 .set-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 0 0 2px rgba(224, 40, 40, 0.2);
 }
 
 .set-input:disabled {
@@ -580,7 +580,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid rgba(239, 68, 68, 0.2);
+  border-bottom: 2px solid rgba(255, 59, 59, 0.2);
 }
 
 .exercise-items {
@@ -601,7 +601,7 @@
 }
 
 .exercise-checkbox:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: rgba(255, 59, 59, 0.08);
 }
 
 .exercise-checkbox input[type="checkbox"] {
