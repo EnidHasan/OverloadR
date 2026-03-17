@@ -1,47 +1,59 @@
-:root {
+﻿:root {
   /* Light Theme - White and Red */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-tertiary: #fff5f5;
-  --text-primary: #1a1a1a;
-  --text-secondary: #4a4a4a;
-  --text-muted: #6b7280;
-  --primary: #dc2626;
-  --primary-hover: #b91c1c;
-  --primary-light: #fecaca;
-  --accent: #ef4444;
-  --card-bg: #ffffff;
-  --card-border: #fee2e2;
-  --input-bg: #ffffff;
-  --input-border: #fecaca;
-  --shadow: rgba(220, 38, 38, 0.1);
-  --shadow-lg: rgba(220, 38, 38, 0.15);
-  --nav-bg: #ffffff;
-  --nav-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
-  --nav-border: #fee2e2;
+  --bg-primary: #F7F7F7;
+  --bg-secondary: #F0F0F0;
+  --bg-tertiary: #FFFFFF;
+  --text-primary: #0F0F0F;
+  --text-secondary: #4B4B4B;
+  --text-muted: #4B4B4B;
+  --text-disabled: #9CA3AF;
+  --primary: #E11D48;
+  --primary-hover: #BE123C;
+  --primary-active: #9F1239;
+  --primary-light: rgba(225, 29, 72, 0.15);
+  --accent: #E11D48;
+  --card-bg: #FFFFFF;
+  --card-border: #E4E4E4;
+  --input-bg: #FFFFFF;
+  --input-border: #E4E4E4;
+  --border-color: #E4E4E4;
+  --shadow: rgba(15, 15, 15, 0.06);
+  --shadow-lg: rgba(15, 15, 15, 0.12);
+  --nav-bg: #FFFFFF;
+  --nav-shadow: 0 2px 8px rgba(15, 15, 15, 0.06);
+  --nav-border: #E4E4E4;
+  --btn-secondary-bg: #E5E5E5;
+  --success: #16A34A;
+  --warning: #F59E0B;
 }
 
 [data-theme="dark"] {
   /* Dark Theme - Black and Red */
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #1f1f1f;
-  --text-primary: #ffffff;
-  --text-secondary: #e5e5e5;
-  --text-muted: #9ca3af;
-  --primary: #ef4444;
-  --primary-hover: #dc2626;
-  --primary-light: #7f1d1d;
-  --accent: #f87171;
-  --card-bg: #1a1a1a;
-  --card-border: #7f1d1d;
-  --input-bg: #0f0f0f;
-  --input-border: #7f1d1d;
-  --shadow: rgba(239, 68, 68, 0.2);
-  --shadow-lg: rgba(239, 68, 68, 0.3);
-  --nav-bg: #050505;
-  --nav-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-  --nav-border: #2a0f0f;
+  --bg-primary: #0D0D0D;
+  --bg-secondary: #171717;
+  --bg-tertiary: #1F1F1F;
+  --text-primary: #FFFFFF;
+  --text-secondary: #B3B3B3;
+  --text-muted: #6E6E6E;
+  --text-disabled: #6E6E6E;
+  --primary: #FF3B3B;
+  --primary-hover: #FF5252;
+  --primary-active: #E02828;
+  --primary-light: rgba(255, 59, 59, 0.15);
+  --accent: #FF3B3B;
+  --card-bg: #171717;
+  --card-border: #2A2A2A;
+  --input-bg: #141414;
+  --input-border: #2A2A2A;
+  --border-color: #2A2A2A;
+  --shadow: rgba(0, 0, 0, 0.4);
+  --shadow-lg: rgba(0, 0, 0, 0.6);
+  --nav-bg: #0D0D0D;
+  --nav-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --nav-border: #2A2A2A;
+  --btn-secondary-bg: #2A2A2A;
+  --success: #22C55E;
+  --warning: #FACC15;
 }
 
 * {
@@ -106,11 +118,32 @@ button:hover::before {
 button:hover {
   background-color: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--shadow-lg), 0 0 25px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 6px 20px var(--shadow-lg), 0 0 25px rgba(255, 59, 59, 0.3);
 }
 
 button:active {
+  background-color: var(--primary-active, var(--primary-hover));
   transform: translateY(0);
+}
+
+button:disabled {
+  background: var(--btn-secondary-bg);
+  color: var(--text-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.secondary-button,
+button.secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.secondary-button:hover,
+button.secondary:hover {
+  background: #d9d9d9;
+  transform: translateY(-1px);
 }
 
 form {
@@ -158,7 +191,7 @@ form textarea:focus,
 form select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light), 0 0 20px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 3px var(--primary-light), 0 0 20px rgba(255, 59, 59, 0.2);
   transform: scale(1.01);
 }
 
@@ -190,7 +223,7 @@ label {
   background: linear-gradient(
     45deg,
     transparent 30%,
-    rgba(239, 68, 68, 0.05) 50%,
+    rgba(255, 59, 59, 0.05) 50%,
     transparent 70%
   );
   transform: rotate(45deg);
@@ -207,7 +240,7 @@ label {
 }
 
 .card:hover {
-  box-shadow: 0 8px 30px var(--shadow-lg), 0 0 30px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 8px 30px var(--shadow-lg), 0 0 30px rgba(255, 59, 59, 0.15);
   transform: translateY(-3px) scale(1.02);
 }
 
@@ -254,7 +287,7 @@ label {
   height: 40px;
   width: 40px;
   object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.3));
+  filter: drop-shadow(0 0 8px rgba(255, 59, 59, 0.3));
   transition: all 0.3s ease;
   animation: logoPulse 2s ease-in-out infinite;
   mix-blend-mode: multiply;
@@ -270,7 +303,7 @@ label {
 
 [data-theme="dark"] .navbar-logo {
   mix-blend-mode: screen;
-  filter: brightness(1.2) drop-shadow(0 0 8px rgba(239, 68, 68, 0.3));
+  filter: brightness(1.2) drop-shadow(0 0 8px rgba(255, 59, 59, 0.3));
 }
 
 @keyframes logoPulse {
@@ -284,11 +317,11 @@ label {
 
 .brand-logo:hover .navbar-logo {
   transform: scale(1.1) rotate(5deg);
-  filter: brightness(1.1) drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));
+  filter: brightness(1.1) drop-shadow(0 0 20px rgba(255, 59, 59, 0.6));
 }
 
 [data-theme="dark"] .brand-logo:hover .navbar-logo {
-  filter: brightness(1.3) drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));
+  filter: brightness(1.3) drop-shadow(0 0 20px rgba(255, 59, 59, 0.6));
 }
 
 .brand-logo:hover {
@@ -313,7 +346,7 @@ label {
 .menu-toggle:hover {
   background: var(--bg-tertiary);
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 0 15px rgba(255, 59, 59, 0.3);
   border-color: var(--primary-hover);
 }
 
